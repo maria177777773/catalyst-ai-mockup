@@ -142,8 +142,8 @@
   @keyframes marquee { from {transform:translateX(0);} to {transform:translateX(-50%);} }
 
   /* SECTIONS */
-  section { padding: 120px 40px; }
-  .section-head { text-align: center; max-width: 800px; margin: 0 auto 80px; }
+  section { padding: 84px 40px; }
+  .section-head { text-align: center; max-width: 800px; margin: 0 auto 56px; }
   .eyebrow {
     display: inline-block; padding: 6px 16px;
     background: rgba(167,139,250,0.1);
@@ -464,7 +464,7 @@
 
   /* CTA */
   .cta-section {
-    max-width: 1280px; margin: 0 auto; padding: 80px;
+    max-width: 1280px; margin: 0 auto; padding: 56px;
     background: linear-gradient(135deg, #A78BFA, #F472B6);
     border-radius: 32px; text-align: center;
     position: relative; overflow: hidden;
@@ -772,7 +772,7 @@
     </div>
 
     <div class="program-card">
-      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(124,58,237,0.4), rgba(219,39,119,0.4)), url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80');">
+      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(124,58,237,0.4), rgba(219,39,119,0.4)), url('photos/strategy.jpg');">
         <span class="program-tag">Стратегия</span>
         <span class="program-duration">2 дня · 15-40 чел</span>
       </div>
@@ -793,7 +793,7 @@
     </div>
 
     <div class="program-card">
-      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(234,88,12,0.4), rgba(251,191,36,0.4)), url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80');">
+      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(234,88,12,0.4), rgba(251,191,36,0.4)), url('photos/marathon.jpg');">
         <span class="program-tag">Онлайн</span>
         <span class="program-duration">2 часа · до 500 чел</span>
       </div>
@@ -952,6 +952,17 @@
   </div>
 </footer>
 
+<style>
+  /* Лёгкое появление при скролле */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  /* Тонкий hover на карточках программ */
+  .program-card { transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease; }
+  .program-card:hover { transform: translateY(-4px); border-color: rgba(167,139,250,0.35); box-shadow: 0 20px 40px -20px rgba(167,139,250,0.25); }
+  /* Плавное движение градиента на CTA-кнопке */
+  .cta-form button { background-size: 200% 200%; transition: transform 0.2s, box-shadow 0.3s; }
+  .cta-form button:hover { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.4); }
+</style>
 <script>
   // FAQ аккордеон
   document.querySelectorAll('.faq-item').forEach(item => {
@@ -959,6 +970,19 @@
       item.classList.toggle('open');
     });
   });
+
+  // Мягкое появление секций и карточек при скролле
+  const revealEls = document.querySelectorAll('.section-head, .program-card, .include-card, .extra-card, .format-card, .feature-card, .faq-item');
+  revealEls.forEach(el => el.classList.add('reveal'));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
 </script>
 
 </body>
