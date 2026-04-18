@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalyst AI — Тимбилдинги с нейросетями</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0A0A0B;
+    color: #F5F5F7;
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 40px; }
+  img { max-width: 100%; display: block; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 40px;
+    background: rgba(10,10,11,0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .nav-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
+  .logo span { background: linear-gradient(135deg, #A78BFA, #F472B6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: #fff; }
+  .nav-cta {
+    padding: 10px 20px;
+    background: #fff; color: #0A0A0B;
+    border-radius: 100px; font-weight: 600; font-size: 14px;
+    text-decoration: none; transition: transform 0.2s;
+  }
+  .nav-cta:hover { transform: scale(1.05); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(167,139,250,0.25) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(244,114,182,0.2) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(96,165,250,0.15) 0%, transparent 60%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% {opacity:1;} 50% {opacity:0.6;} }
+  .hero-content { position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; width: 100%; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 100px;
+    font-size: 13px; margin-bottom: 32px;
+    animation: fadeInUp 0.6s ease-out;
+  }
+  .hero-badge .dot { width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 12px #10B981; }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 7vw, 96px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.0;
+    margin-bottom: 32px;
+    animation: fadeInUp 0.8s ease-out;
+  }
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, #A78BFA 0%, #F472B6 50%, #FBBF24 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: gradientShift 5s ease infinite;
+  }
+  @keyframes gradientShift { 0%,100% {background-position:0% 50%;} 50% {background-position:100% 50%;} }
+  @keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
+  .hero p {
+    font-size: 20px; color: rgba(255,255,255,0.7);
+    max-width: 640px; margin-bottom: 48px;
+    animation: fadeInUp 1s ease-out;
+  }
+  .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeInUp 1.2s ease-out; }
+  .btn-primary {
+    padding: 18px 32px;
+    background: linear-gradient(135deg, #A78BFA, #F472B6);
+    color: #fff; border: none; border-radius: 100px;
+    font-size: 16px; font-weight: 600; cursor: pointer;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 20px 40px rgba(167,139,250,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 30px 50px rgba(167,139,250,0.4); }
+  .btn-secondary {
+    padding: 18px 32px;
+    background: rgba(255,255,255,0.05); color: #fff;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 100px;
+    font-size: 16px; font-weight: 600; cursor: pointer;
+    text-decoration: none; transition: all 0.3s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+  .hero-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px;
+    margin-top: 80px; padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    animation: fadeInUp 1.4s ease-out;
+  }
+  .stat-num { font-size: 48px; font-weight: 800; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff, rgba(255,255,255,0.5));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 13px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+  /* LOGOS MARQUEE */
+  .logos {
+    padding: 60px 40px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    overflow: hidden;
+  }
+  .logos-label { text-align: center; font-size: 13px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 32px; }
+  .logos-track {
+    display: flex; gap: 80px; align-items: center;
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+  .logos-track span {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700;
+    color: rgba(255,255,255,0.4); white-space: nowrap;
+    letter-spacing: -0.02em;
+  }
+  @keyframes marquee { from {transform:translateX(0);} to {transform:translateX(-50%);} }
+
+  /* SECTIONS */
+  section { padding: 120px 40px; }
+  .section-head { text-align: center; max-width: 800px; margin: 0 auto 80px; }
+  .eyebrow {
+    display: inline-block; padding: 6px 16px;
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-radius: 100px; font-size: 13px; color: #A78BFA;
+    font-weight: 600; letter-spacing: 0.05em; margin-bottom: 24px;
+  }
+  .section-head h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 900; letter-spacing: -0.03em;
+    line-height: 1.1; margin-bottom: 20px;
+  }
+  .section-head p { font-size: 18px; color: rgba(255,255,255,0.6); }
+
+  /* FEATURES GRID */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1280px; margin: 0 auto; }
+  .feature {
+    padding: 40px 32px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+    transition: all 0.4s;
+    cursor: pointer;
+  }
+  .feature:hover {
+    transform: translateY(-8px);
+    border-color: rgba(167,139,250,0.3);
+    background: linear-gradient(145deg, rgba(167,139,250,0.08), rgba(244,114,182,0.05));
+  }
+  .feature-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(244,114,182,0.2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin-bottom: 24px;
+  }
+  .feature h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.02em; }
+  .feature p { color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.6; }
+
+  /* FORMATS GRID */
+  .formats { background: linear-gradient(180deg, transparent, rgba(167,139,250,0.03)); }
+  .formats-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; max-width: 1280px; margin: 0 auto; }
+  .format-card {
+    border-radius: 24px; padding: 40px;
+    position: relative; overflow: hidden;
+    min-height: 320px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    cursor: pointer; transition: transform 0.4s;
+  }
+  .format-card:hover { transform: scale(1.02); }
+  .format-card.big { grid-row: span 2; background: linear-gradient(135deg, #6D28D9, #BE185D); min-height: 660px; }
+  .format-card.a { background: linear-gradient(135deg, #0369A1, #0891B2); }
+  .format-card.b { background: linear-gradient(135deg, #C2410C, #DC2626); }
+  .format-card.c { background: linear-gradient(135deg, #15803D, #059669); }
+  .format-card.d { background: linear-gradient(135deg, #7C3AED, #DB2777); }
+  .format-emoji { font-size: 64px; position: absolute; top: 32px; right: 32px; opacity: 0.3; }
+  .format-card h3 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; }
+  .format-card.big h3 { font-size: 48px; }
+  .format-card p { color: rgba(255,255,255,0.8); font-size: 15px; }
+  .format-meta { display: flex; gap: 16px; margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.6); }
+
+  /* PROGRAMS — детальные программы с фото */
+  .programs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; max-width: 1280px; margin: 0 auto; }
+  .program-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px; overflow: hidden;
+    transition: all 0.4s;
+  }
+  .program-card:hover { transform: translateY(-8px); border-color: rgba(167,139,250,0.3); }
+  .program-image {
+    height: 280px; position: relative; overflow: hidden;
+    background-size: cover; background-position: center;
+  }
+  .program-image::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(10,10,11,0.9));
+  }
+  .program-tag {
+    position: absolute; top: 20px; left: 20px; z-index: 2;
+    padding: 6px 14px;
+    background: rgba(167,139,250,0.9); color: #fff;
+    border-radius: 100px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    backdrop-filter: blur(10px);
+  }
+  .program-duration {
+    position: absolute; top: 20px; right: 20px; z-index: 2;
+    padding: 6px 14px;
+    background: rgba(0,0,0,0.5); color: #fff;
+    border-radius: 100px; font-size: 12px; font-weight: 500;
+    backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+  }
+  .program-body { padding: 32px; }
+  .program-body h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700;
+    margin-bottom: 12px; letter-spacing: -0.02em;
+  }
+  .program-body > p { color: rgba(255,255,255,0.65); font-size: 15px; margin-bottom: 20px; line-height: 1.6; }
+  .program-includes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  .program-includes div {
+    font-size: 14px; color: rgba(255,255,255,0.75);
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .program-includes div::before { content: '✓'; color: #A78BFA; font-weight: 700; }
+  .program-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .program-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; font-weight: 700;
+  }
+  .program-price span { font-family: 'Inter', sans-serif; font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 400; margin-left: 4px; }
+  .program-btn {
+    padding: 10px 20px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 100px;
+    color: #fff; text-decoration: none; font-size: 14px; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .program-btn:hover { background: #fff; color: #0A0A0B; }
+
+  /* PROCESS */
+  .process { background: linear-gradient(180deg, rgba(167,139,250,0.03), transparent); }
+  .process-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+    max-width: 1280px; margin: 0 auto; position: relative;
+  }
+  .process-step {
+    padding: 32px 24px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px; position: relative;
+  }
+  .process-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px; font-weight: 900;
+    background: linear-gradient(135deg, #A78BFA, #F472B6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1; margin-bottom: 16px;
+  }
+  .process-step h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .process-step p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+  .process-step .time {
+    display: inline-block; margin-top: 12px;
+    padding: 4px 10px;
+    background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.2);
+    border-radius: 100px; font-size: 12px; color: #A78BFA;
+  }
+
+  /* TIMELINE — пример расписания */
+  .timeline-wrap {
+    max-width: 800px; margin: 0 auto;
+    padding: 40px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+  }
+  .timeline-item {
+    display: grid; grid-template-columns: 100px 1fr;
+    gap: 24px; padding: 20px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-time {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700; color: #A78BFA;
+  }
+  .timeline-content h4 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .timeline-content p { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+  /* CASES */
+  .cases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1280px; margin: 0 auto; }
+  .case-card {
+    border-radius: 24px; overflow: hidden;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.4s; cursor: pointer;
+  }
+  .case-card:hover { transform: translateY(-8px); border-color: rgba(167,139,250,0.3); }
+  .case-image {
+    height: 240px; background-size: cover; background-position: center;
+    position: relative;
+  }
+  .case-image::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(10,10,11,0.95));
+  }
+  .case-client {
+    position: absolute; bottom: 20px; left: 20px; z-index: 2;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; font-weight: 700; color: #fff;
+  }
+  .case-body { padding: 28px; }
+  .case-body h4 { font-size: 18px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em; }
+  .case-body p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; margin-bottom: 16px; }
+  .case-stats { display: flex; gap: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .case-stats div { flex: 1; }
+  .case-stats .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700;
+    background: linear-gradient(135deg, #A78BFA, #F472B6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .case-stats .lbl { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+  /* TESTIMONIALS */
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1280px; margin: 0 auto; }
+  .testimonial {
+    padding: 32px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+    display: flex; flex-direction: column;
+  }
+  .stars { color: #FBBF24; font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; }
+  .testimonial blockquote {
+    font-size: 16px; line-height: 1.7; color: rgba(255,255,255,0.85);
+    margin-bottom: 24px; flex: 1; font-style: italic;
+  }
+  .testimonial-author { display: flex; align-items: center; gap: 14px; }
+  .avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background-size: cover; background-position: center;
+    border: 2px solid rgba(167,139,250,0.3);
+  }
+  .author-info h4 { font-size: 15px; font-weight: 600; }
+  .author-info p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+  /* COMPARISON TABLE */
+  .compare-wrap {
+    max-width: 1100px; margin: 0 auto;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px; overflow: hidden;
+  }
+  .compare-row {
+    display: grid; grid-template-columns: 2fr 1fr 1fr;
+    padding: 24px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    align-items: center;
+  }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-header { background: rgba(167,139,250,0.05); }
+  .compare-header div { font-weight: 700; font-size: 15px; }
+  .compare-header div:nth-child(2) { color: #A78BFA; text-align: center; }
+  .compare-header div:nth-child(3) { color: rgba(255,255,255,0.5); text-align: center; }
+  .compare-row > div:first-child { font-size: 15px; color: rgba(255,255,255,0.85); }
+  .compare-row > div:nth-child(2),
+  .compare-row > div:nth-child(3) { text-align: center; font-size: 15px; }
+  .check-yes { color: #10B981; font-size: 22px; font-weight: 700; }
+  .check-no { color: rgba(255,255,255,0.3); font-size: 22px; }
+
+  /* TEAM */
+  .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1280px; margin: 0 auto; }
+  .team-card { text-align: center; }
+  .team-photo {
+    width: 100%; aspect-ratio: 3/4;
+    border-radius: 20px; margin-bottom: 16px;
+    background-size: cover; background-position: center;
+    position: relative; overflow: hidden;
+    transition: transform 0.4s;
+  }
+  .team-photo::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(10,10,11,0.7));
+  }
+  .team-card:hover .team-photo { transform: scale(1.02); }
+  .team-card h4 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .team-card p { font-size: 14px; color: rgba(255,255,255,0.5); }
+
+  /* FAQ */
+  .faq-wrap { max-width: 800px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 24px 0; cursor: pointer;
+  }
+  .faq-question {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 18px; font-weight: 600; transition: color 0.2s;
+  }
+  .faq-item:hover .faq-question { color: #A78BFA; }
+  .faq-plus {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(167,139,250,0.15); color: #A78BFA;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 300; transition: transform 0.3s;
+  }
+  .faq-item.open .faq-plus { transform: rotate(45deg); background: #A78BFA; color: #fff; }
+  .faq-answer {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease;
+    color: rgba(255,255,255,0.65); font-size: 15px; line-height: 1.7;
+  }
+  .faq-item.open .faq-answer { max-height: 300px; padding-top: 16px; }
+
+  /* INCLUDES — что входит в стоимость */
+  .includes-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    max-width: 1280px; margin: 0 auto;
+  }
+  .include-card {
+    padding: 28px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .include-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(244,114,182,0.2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .include-card h4 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .include-card p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+  /* CTA */
+  .cta-section {
+    max-width: 1280px; margin: 0 auto; padding: 80px;
+    background: linear-gradient(135deg, #A78BFA, #F472B6);
+    border-radius: 32px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.2), transparent 50%);
+  }
+  .cta-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 5vw, 72px); font-weight: 900;
+    line-height: 1.1; margin-bottom: 24px; letter-spacing: -0.03em;
+    position: relative;
+  }
+  .cta-section p { font-size: 20px; margin-bottom: 40px; opacity: 0.9; position: relative; }
+  .cta-form {
+    display: flex; gap: 12px; max-width: 480px; margin: 0 auto;
+    position: relative; flex-wrap: wrap;
+  }
+  .cta-form input {
+    flex: 1; padding: 18px 24px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px; color: #fff; font-size: 16px;
+    backdrop-filter: blur(10px); min-width: 240px;
+  }
+  .cta-form input::placeholder { color: rgba(255,255,255,0.7); }
+  .cta-form button {
+    padding: 18px 32px; background: #0A0A0B; color: #fff;
+    border: none; border-radius: 100px; font-weight: 600; font-size: 16px;
+    cursor: pointer; transition: transform 0.2s;
+  }
+  .cta-form button:hover { transform: scale(1.05); }
+  .cta-guarantee { margin-top: 20px; font-size: 14px; opacity: 0.85; position: relative; }
+
+  /* FOOTER */
+  footer {
+    padding: 60px 40px 40px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.02);
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px; max-width: 1280px; margin: 0 auto 40px;
+  }
+  .footer-brand p { color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 16px; max-width: 300px; line-height: 1.6; }
+  .footer-col h5 { font-size: 14px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.9); }
+  .footer-col a { display: block; color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px; margin-bottom: 10px; transition: color 0.2s; }
+  .footer-col a:hover { color: #A78BFA; }
+  .footer-bottom {
+    max-width: 1280px; margin: 0 auto;
+    padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    font-size: 13px; color: rgba(255,255,255,0.4);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .features { grid-template-columns: 1fr; }
+    .formats-grid { grid-template-columns: 1fr; }
+    .format-card.big { grid-row: auto; min-height: 320px; }
+    .programs-grid, .cases-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .process-grid, .includes-grid, .team-grid { grid-template-columns: repeat(2, 1fr); }
+    .compare-row { grid-template-columns: 1.5fr 1fr 1fr; padding: 16px 20px; font-size: 13px; }
+    .cta-section { padding: 48px 24px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Catalyst<span>.AI</span></div>
+    <ul class="nav-links">
+      <li><a href="#programs">Программы</a></li>
+      <li><a href="#how">Почему мы</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#contact">Контакты</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Обсудить проект</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="dot"></div>
+      Новая эра корпоративных тимбилдингов · 2026
+    </div>
+    <h1>
+      Тимбилдинги<br>
+      с <span class="gradient">нейросетями</span><br>
+      для твоей команды
+    </h1>
+    <p>
+      Мы делаем корпоративные ивенты, где команды учатся работать с AI —
+      через квесты, мастер-классы и практические воркшопы. От 20 до 500 человек.
+    </p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn-primary">Получить предложение →</a>
+      <a href="#programs" class="btn-secondary">Посмотреть программы</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">500+</div>
+        <div class="stat-label">Команд обучено</div>
+      </div>
+      <div>
+        <div class="stat-num">12</div>
+        <div class="stat-label">Лет на рынке</div>
+      </div>
+      <div>
+        <div class="stat-num">47</div>
+        <div class="stat-label">AI-форматов</div>
+      </div>
+      <div>
+        <div class="stat-num">4.9</div>
+        <div class="stat-label">Рейтинг клиентов</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS MARQUEE — временно убрано по запросу -->
+
+
+<!-- WHY US — Features -->
+<section id="how">
+  <div class="section-head">
+    <div class="eyebrow">Почему Catalyst.AI</div>
+    <h2>Не лекция. Не скука.<br>Настоящая практика.</h2>
+    <p>Команда выходит с реальным навыком — как использовать ChatGPT, Midjourney и других AI-агентов в работе.</p>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">🧠</div>
+      <h3>Реальные AI-задачи</h3>
+      <p>Не абстракции, а задачи вашей команды. Маркетологи учат промпты для кампаний, HR — для рекрутинга, продажники — для писем.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <h3>Формат геймификации</h3>
+      <p>Команды соревнуются в решении AI-квестов. Побеждает тот, кто лучше формулирует запросы. Всё — через живое общение.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🎯</div>
+      <h3>Результат в цифрах</h3>
+      <p>Каждый участник уходит с 5-10 рабочих промптов, адаптированных под его должность. Применяет с понедельника.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🏆</div>
+      <h3>12 лет экспертизы</h3>
+      <p>Catalyst делает event-мероприятия с 2014. Работаем с Сбер, Яндексом, Газпромом, МТС. Знаем корпоративную культуру.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔒</div>
+      <h3>Безопасность данных</h3>
+      <p>Учим использовать AI без утечки корпоративной информации. Разбираем что можно, а что — нельзя. Под NDA.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📍</div>
+      <h3>Москва и вся Россия</h3>
+      <p>Выездные форматы, онлайн, гибрид. Организуем под ключ в любом городе — площадка, кейтеринг, техника, ведущие.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FORMATS — цветные плитки -->
+<section id="formats" class="formats">
+  <div class="section-head">
+    <div class="eyebrow">Форматы</div>
+    <h2>Что мы делаем</h2>
+    <p>4 флагманских формата + кастом под ваш запрос</p>
+  </div>
+  <div class="formats-grid">
+    <div class="format-card big">
+      <div class="format-emoji">🎮</div>
+      <h3>AI-Квест<br>по городу</h3>
+      <p>Команды решают AI-задачи на улицах города. 3-4 часа, 50-200 человек, работает в любую погоду.</p>
+      <div class="format-meta"><span>3-4 часа</span><span>•</span><span>50-200 чел</span></div>
+    </div>
+    <div class="format-card a">
+      <div class="format-emoji">🎨</div>
+      <h3>Midjourney-<br>воркшоп</h3>
+      <p>Создаём визуал для бренда</p>
+      <div class="format-meta"><span>2 часа</span><span>•</span><span>20-50 чел</span></div>
+    </div>
+    <div class="format-card b">
+      <div class="format-emoji">✍️</div>
+      <h3>ChatGPT<br>для работы</h3>
+      <p>Практические промпты</p>
+      <div class="format-meta"><span>3 часа</span><span>•</span><span>до 100 чел</span></div>
+    </div>
+    <div class="format-card c">
+      <div class="format-emoji">🎬</div>
+      <h3>AI-Видео<br>за день</h3>
+      <p>Команды снимают ролик с нейросетями</p>
+      <div class="format-meta"><span>6 часов</span><span>•</span><span>30-80 чел</span></div>
+    </div>
+    <div class="format-card d">
+      <div class="format-emoji">🧪</div>
+      <h3>Кастом под<br>ваш запрос</h3>
+      <p>Собираем формат под цели</p>
+      <div class="format-meta"><span>По запросу</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMS — детальные программы с фото -->
+<section id="programs">
+  <div class="section-head">
+    <div class="eyebrow">Программы</div>
+    <h2>6 готовых программ<br>с подробной механикой</h2>
+    <p>Каждая программа — полноценный сценарий: цели, расписание, итоговые артефакты. Адаптируем под ваш бизнес.</p>
+  </div>
+  <div class="programs-grid">
+
+    <div class="program-card">
+      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(109,40,217,0.4), rgba(190,24,93,0.4)), url('https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&q=80');">
+        <span class="program-tag">Флагман</span>
+        <span class="program-duration">4 часа · 50-200 чел</span>
+      </div>
+      <div class="program-body">
+        <h3>AI-Квест по городу</h3>
+        <p>Команды получают маршрут с AI-задачами. На каждой точке — вызов: сгенерировать постер в Midjourney, написать слоган в ChatGPT, снять видео с нейросетью. Побеждает команда с лучшими промптами.</p>
+        <div class="program-includes">
+          <div>Геймификация и таблица лидеров в реальном времени</div>
+          <div>Готовый маршрут на 8-12 локаций по Москве</div>
+          <div>Ведущие-модераторы + техподдержка на точках</div>
+          <div>Финальный шоу-кейс работ + награждение</div>
+        </div>
+        <div class="program-footer">
+          <div class="program-price">от 450 000 ₽<span>/ под ключ</span></div>
+          <a href="#contact" class="program-btn">Запросить →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="program-card">
+      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(3,105,161,0.4), rgba(8,145,178,0.4)), url('https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80');">
+        <span class="program-tag">Креатив</span>
+        <span class="program-duration">3 часа · 20-50 чел</span>
+      </div>
+      <div class="program-body">
+        <h3>Midjourney-воркшоп</h3>
+        <p>Команда создаёт визуальную айдентику для бренда или продукта. От промпта до готовых постеров. Учимся формулировать стиль, работать с референсами, делать серии.</p>
+        <div class="program-includes">
+          <div>Доступ к Midjourney + ChatGPT на день</div>
+          <div>20+ готовых промпт-шаблонов под индустрию</div>
+          <div>Портфолио работ команды в финале</div>
+          <div>PDF-гайд с лучшими промптами — каждому</div>
+        </div>
+        <div class="program-footer">
+          <div class="program-price">от 280 000 ₽<span>/ под ключ</span></div>
+          <a href="#contact" class="program-btn">Запросить →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="program-card">
+      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(194,65,12,0.4), rgba(220,38,38,0.4)), url('https://images.unsplash.com/photo-1677756119517-756a188d2d94?w=800&q=80');">
+        <span class="program-tag">Практика</span>
+        <span class="program-duration">3 часа · до 100 чел</span>
+      </div>
+      <div class="program-body">
+        <h3>ChatGPT для работы</h3>
+        <p>Команды делятся по отделам и решают реальные рабочие задачи через AI: маркетологи делают контент-план, HR — описание вакансий, продажники — цепочки писем.</p>
+        <div class="program-includes">
+          <div>Сценарий по отделам: маркетинг / HR / продажи / продакт</div>
+          <div>Библиотека 50+ промптов под должности</div>
+          <div>Защита проектов командами перед экспертами</div>
+          <div>Отчёт руководителю: что команда вынесла</div>
+        </div>
+        <div class="program-footer">
+          <div class="program-price">от 320 000 ₽<span>/ под ключ</span></div>
+          <a href="#contact" class="program-btn">Запросить →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="program-card">
+      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(21,128,61,0.4), rgba(5,150,105,0.4)), url('https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=800&q=80');">
+        <span class="program-tag">Шоу</span>
+        <span class="program-duration">6 часов · 30-80 чел</span>
+      </div>
+      <div class="program-body">
+        <h3>AI-Видео за день</h3>
+        <p>Команды снимают короткометражку от идеи до монтажа через нейросети. Сценарий в ChatGPT, кадры в Runway/Sora, музыка в Suno. Финал — премьера с попкорном и наградами.</p>
+        <div class="program-includes">
+          <div>Работа со 4 нейросетями: ChatGPT, Runway, Sora, Suno</div>
+          <div>Съёмочные площадки + костюмы + реквизит</div>
+          <div>Профи-монтажёр помогает каждой команде</div>
+          <div>Премьера готовых роликов + голосование</div>
+        </div>
+        <div class="program-footer">
+          <div class="program-price">от 580 000 ₽<span>/ под ключ</span></div>
+          <a href="#contact" class="program-btn">Запросить →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="program-card">
+      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(124,58,237,0.4), rgba(219,39,119,0.4)), url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80');">
+        <span class="program-tag">Стратегия</span>
+        <span class="program-duration">2 дня · 15-40 чел</span>
+      </div>
+      <div class="program-body">
+        <h3>AI-стратегия для топ-менеджмента</h3>
+        <p>Интенсив для руководителей: где AI даёт рост выручки, как внедрять, какие KPI. Разбираем кейсы вашей индустрии, строим роадмап внедрения на квартал.</p>
+        <div class="program-includes">
+          <div>Аудит процессов до ивента — находим точки роста</div>
+          <div>Разбор 5-7 конкурентов: как они используют AI</div>
+          <div>Готовый роадмап внедрения на 90 дней</div>
+          <div>Индивидуальная коуч-сессия для CEO</div>
+        </div>
+        <div class="program-footer">
+          <div class="program-price">от 890 000 ₽<span>/ под ключ</span></div>
+          <a href="#contact" class="program-btn">Запросить →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="program-card">
+      <div class="program-image" style="background-image: linear-gradient(135deg, rgba(234,88,12,0.4), rgba(251,191,36,0.4)), url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80');">
+        <span class="program-tag">Онлайн</span>
+        <span class="program-duration">2 часа · до 500 чел</span>
+      </div>
+      <div class="program-body">
+        <h3>Онлайн AI-марафон</h3>
+        <p>Zoom-формат для распределённых команд. 500+ участников одновременно, игровая механика, командные задачи. Идеально для регулярных корпоративных встреч.</p>
+        <div class="program-includes">
+          <div>Трансляция в Zoom + интерактивная платформа</div>
+          <div>Разбивка на мини-команды по breakout rooms</div>
+          <div>Рейтинг команд в реальном времени</div>
+          <div>Запись ивента + отчёт HR-директору</div>
+        </div>
+        <div class="program-footer">
+          <div class="program-price">от 180 000 ₽<span>/ под ключ</span></div>
+          <a href="#contact" class="program-btn">Запросить →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Убрано по запросу: Process, Timeline, Cases, Comparison -->
+
+<!-- INCLUDES — что входит в стоимость -->
+<section>
+  <div class="section-head">
+    <div class="eyebrow">Что входит</div>
+    <h2>Всё под ключ —<br>без скрытых доплат</h2>
+    <p>Одна строка в бюджете. Мы закрываем организацию от А до Я.</p>
+  </div>
+  <div class="includes-grid">
+    <div class="include-card"><div class="include-icon">🎯</div><div><h4>Разработка сценария</h4><p>Под вашу индустрию, цели и команду. Любое число правок.</p></div></div>
+    <div class="include-card"><div class="include-icon">📍</div><div><h4>Площадка</h4><p>Подбор, бронирование, согласование. Москва или ваш город.</p></div></div>
+    <div class="include-card"><div class="include-icon">🎬</div><div><h4>Техника и стриминг</h4><p>Звук, свет, проекторы, камеры, запись. Всё на площадке.</p></div></div>
+    <div class="include-card"><div class="include-icon">🎤</div><div><h4>Ведущие и модераторы</h4><p>AI-эксперты + шоумены. 1 модератор на 20 человек.</p></div></div>
+    <div class="include-card"><div class="include-icon">🤖</div><div><h4>AI-доступы</h4><p>Платные аккаунты ChatGPT, Midjourney, Runway — на всех.</p></div></div>
+    <div class="include-card"><div class="include-icon">📊</div><div><h4>Отчёт HR-директору</h4><p>Через 3 дня — отчёт с NPS, фото, видео, что команда вынесла.</p></div></div>
+    <div class="include-card"><div class="include-icon">📄</div><div><h4>Документы</h4><p>Договор, NDA, закрывающие, счёт-фактура. Работаем с юрлицами.</p></div></div>
+  </div>
+</section>
+
+<!-- EXTRAS — доп-опции -->
+<section style="padding-top:0;">
+  <div class="section-head">
+    <div class="eyebrow">Доп-опции</div>
+    <h2>Что можем организовать<br>дополнительно</h2>
+    <p>По вашему желанию подключаем к проекту наших партнёров</p>
+  </div>
+  <div class="includes-grid" style="grid-template-columns: repeat(3, 1fr); max-width: 900px;">
+    <div class="include-card"><div class="include-icon">🍽</div><div><h4>Кейтеринг</h4><p>Welcome-кофе, обед, фуршет от проверенных партнёров.</p></div></div>
+    <div class="include-card"><div class="include-icon">🎁</div><div><h4>Мерч и призы</h4><p>Брендированные кубки, пледы, стикеры с вашим логотипом.</p></div></div>
+    <div class="include-card"><div class="include-icon">📸</div><div><h4>Фото и видео</h4><p>Репортажная съёмка дня, монтаж ролика, фотоотчёт.</p></div></div>
+  </div>
+</section>
+
+<!-- Убрано по запросу: Team, Testimonials -->
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-head">
+    <div class="eyebrow">FAQ</div>
+    <h2>Частые вопросы</h2>
+    <p>Не нашли ответ? Напишите — ответим за 15 минут.</p>
+  </div>
+  <div class="faq-wrap">
+
+    <div class="faq-item">
+      <div class="faq-question">Что если у команды нулевой опыт с AI?<span class="faq-plus">+</span></div>
+      <div class="faq-answer">Идеально. Наши программы рассчитаны именно на старт с нуля. Первые 30 минут — базовый брифинг, дальше практика с поддержкой модераторов. Средний возраст участников — 28-45 лет, большинство впервые работают с нейросетями.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Сколько стоит?<span class="faq-plus">+</span></div>
+      <div class="faq-answer">От 180 000 ₽ за онлайн-марафон до 890 000 ₽ за двухдневный интенсив. Точная цена — после брифинга, зависит от количества участников, площадки, города и формата. КП присылаем через 15 минут после звонка.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">За сколько нужно бронировать?<span class="faq-plus">+</span></div>
+      <div class="faq-answer">Оптимально — за 3-4 недели до даты. Минимальный срок — 10 дней (если формат онлайн или маленькая группа). На горячие даты в декабре-январе лучше бронировать за 2-3 месяца.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Работаете только в Москве?<span class="faq-plus">+</span></div>
+      <div class="faq-answer">Нет, делаем по всей России. Выездная команда модераторов и технического персонала — стандартная практика. Уже проводили ивенты в Санкт-Петербурге, Екатеринбурге, Казани, Новосибирске, Сочи.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Как с безопасностью данных?<span class="faq-plus">+</span></div>
+      <div class="faq-answer">Работаем под NDA. В программе — блок «что можно и нельзя передавать в AI». Используем корпоративные версии ChatGPT Enterprise и других инструментов, которые не обучаются на введённых данных. Всё прозрачно для службы безопасности.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Можно онлайн-формат?<span class="faq-plus">+</span></div>
+      <div class="faq-answer">Да. Онлайн AI-марафон — отдельная программа. Zoom или ваша корпоративная платформа, до 500 участников, разбивка на breakout rooms, таблица лидеров в реальном времени. Работает для распределённых команд.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Что в итоге получит команда?<span class="faq-plus">+</span></div>
+      <div class="faq-answer">Минимум — 5-10 рабочих промптов под должность каждого участника, PDF-гайд, запись ивента. Плюс эмоции и командные артефакты (видео, постеры, сценарии), которые останутся на память и в корпоративных соцсетях.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Что если команда большая — 300+ человек?<span class="faq-plus">+</span></div>
+      <div class="faq-answer">Без проблем. Делали мероприятия на 500 человек. Работаем модульно: несколько площадок, параллельные потоки, 1 модератор на 20 участников. Подробности обсудим на брифинге.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contact">
+  <div class="cta-section">
+    <h2>Сделаем вашей команде<br>незабываемый день</h2>
+    <p>Расскажите о команде — пришлём предложение через 15 минут.</p>
+    <form class="cta-form" onsubmit="event.preventDefault(); alert('Форма подключится к Telegram и amoCRM на Vercel');">
+      <input type="text" placeholder="Ваш телефон" required>
+      <button type="submit">Получить КП →</button>
+    </form>
+    <div class="cta-guarantee">⚡ Ответим за 15 минут · 🔒 Без спама · 📄 Готовое КП в PDF</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo" style="font-size:24px;">Catalyst<span>.AI</span></div>
+      <p>Корпоративные AI-тимбилдинги. Часть Catalyst Russia — 12 лет на рынке event-индустрии.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Программы</h5>
+      <a href="#programs">AI-Квест</a>
+      <a href="#programs">Midjourney-воркшоп</a>
+      <a href="#programs">ChatGPT для работы</a>
+      <a href="#programs">AI-Видео за день</a>
+      <a href="#programs">Онлайн-марафон</a>
+    </div>
+    <div class="footer-col">
+      <h5>Компания</h5>
+      <a href="#how">Почему мы</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://catalystrussia.ru">Основной сайт</a>
+    </div>
+    <div class="footer-col">
+      <h5>Контакты</h5>
+      <a href="tel:+74951234567">+7 (495) 123-45-67</a>
+      <a href="mailto:ai@catalystrussia.ru">ai@catalystrussia.ru</a>
+      <a href="https://t.me/catalystru">Telegram</a>
+      <a href="https://wa.me/74951234567">WhatsApp</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 Catalyst.AI · ai.catalystrussia.ru · это мокап, демо-версия</div>
+    <div>Политика конфиденциальности · Оферта</div>
+  </div>
+</footer>
+
+<script>
+  // FAQ аккордеон
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('open');
+    });
+  });
+</script>
+
+</body>
+</html>
